@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+.env
+flask_output.log
+启动系统.bat
