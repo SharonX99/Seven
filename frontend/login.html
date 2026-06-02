@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>登录 - 苏州仓库库存管理系统</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  background: linear-gradient(135deg, #1a237e 0%, #283593 50%, #3949ab 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.login-box {
+  background: #fff;
+  border-radius: 12px;
+  padding: 40px 36px;
+  width: 380px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.3);
+}
+.login-box h1 {
+  font-size: 22px;
+  color: #1a237e;
+  text-align: center;
+  margin-bottom: 6px;
+}
+.login-box .subtitle {
+  text-align: center;
+  color: #888;
+  font-size: 13px;
+  margin-bottom: 28px;
+}
+.form-group {
+  margin-bottom: 18px;
+}
+.form-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 5px;
+}
+.form-group input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  transition: border .2s;
+}
+.form-group input:focus {
+  border-color: #1a237e;
+  box-shadow: 0 0 0 3px rgba(26,35,126,.1);
+}
+.btn-login {
+  width: 100%;
+  padding: 10px;
+  background: #1a237e;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background .2s;
+}
+.btn-login:hover { background: #283593; }
+.error-msg {
+  color: #c62828;
+  font-size: 13px;
+  text-align: center;
+  margin-top: 12px;
+  display: none;
+}
+.loading {
+  display: none;
+  text-align: center;
+  margin-top: 12px;
+  color: #666;
+  font-size: 13px;
+}
+</style>
+</head>
+<body>
+<div class="login-box">
+  <h1>苏州仓库管理系统</h1>
+  <p class="subtitle">请登录后继续使用</p>
+  <div class="form-group">
+    <label for="username">用户名</label>
+    <input type="text" id="username" placeholder="请输入用户名" autocomplete="username" autofocus>
+  </div>
+  <div class="form-group">
+    <label for="password">密码</label>
+    <input type="password" id="password" placeholder="请输入密码" autocomplete="current-password">
+  </div>
+  <button class="btn-login" onclick="doLogin()">登 录</button>
+  <div class="loading" id="loading">登录中...</div>
+  <div class="error-msg" id="errorMsg"></div>
+</div>
+
+<script>
+function doLogin() {
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value.trim();
+  const errorEl = document.getElementById('errorMsg');
+  const loadingEl = document.getElementById('loading');
+
+  if (!username || !password) {
+    errorEl.textContent = '请输入用户名和密码';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  errorEl.style.display = 'none';
+  loadingEl.style.display = 'block';
+
+  fetch('/api/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ username, password })
+  })
+  .then(r => r.json())
+  .then(data => {
+    loadingEl.style.display = 'none';
+    if (data.ok) {
+      window.location.href = '/';
+    } else {
+      errorEl.textContent = data.msg || '登录失败';
+      errorEl.style.display = 'block';
+    }
+  })
+  .catch(() => {
+    loadingEl.style.display = 'none';
+    errorEl.textContent = '网络错误，请重试';
+    errorEl.style.display = 'block';
+  });
+}
+
+// 回车登录
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+</script>
+</body>
+</html>
